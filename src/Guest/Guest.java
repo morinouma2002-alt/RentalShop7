@@ -1,11 +1,10 @@
 package Guest;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import DVD.DVD;
+import Exception.RentalException;
 
 public class Guest {
 
@@ -20,7 +19,6 @@ public class Guest {
 
 	//客の状態はこの1つだけで管理する。始めは通常客
 	private GuestStatus status = GuestStatus.NORMAL;
-	private GuestRank rank =GuestRank.NORMAL;
 
 	//guestが借りた、商品を貯める
 	protected List<DVD> dvdSave = new ArrayList<>();
@@ -33,9 +31,10 @@ public class Guest {
 		return dvdSave;
 	}
 
-	//通常客のときだけ借りられる
-	public boolean canRent() {
-		return status == GuestStatus.NORMAL;
+	public void checkCanRent() throws RentalException{
+		if(status != GuestStatus.NORMAL) {
+			throw new RentalException("延滞中なので、借りれません");
+		}
 	}
 
 	public GuestStatus getStatus() {

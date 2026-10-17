@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import Exception.SystemMenuException;
 import Guest.Guest;
 import Manager.Employee;
 import Manager.Shop;
@@ -15,7 +16,7 @@ public class TopMenu implements Menu {
 	private ZaikoKanri zaiko;
 	private Scanner sc;
 	private Shop ai;
-	private LocalDate today=LocalDate.now();
+	private LocalDate today = LocalDate.now();
 
 	public TopMenu(ZaikoKanri zaikoKanri, Scanner sc, Shop manager) {
 		this.zaiko = zaikoKanri;
@@ -34,63 +35,83 @@ public class TopMenu implements Menu {
 		Guest guest = productGuest(list);
 
 		while (found) {
-			
-			System.out.println("今日は----"+today+"");
 
-			String text = """
-					レンタルDVD
-					1,レンタル
-					2,返却
-					3,検索
-					4,会員登録
-					5,現在の状態を確認する
+			try {
 
-					6,次の客を生成する OR 以前の客を呼び出す
-					7,1日目が終了する
-					8,店の関係者のみ閲覧可能
-					9,システム自体を止める
-					""";
+				System.out.println("今日は----" + today + "");
 
-			System.out.println(text);
+				String text = """
+						レンタルDVD
+						1,レンタル
+						2,返却
+						3,検索
+						4,会員登録
+						5,現在の状態を確認する
 
-			int select = InputHelper.readInt(sc, 1, 9);
+						6,次の客を生成する OR 以前の客を呼び出す
+						7,1日目が終了する
+						8,店の関係者のみ閲覧可能
+						9,システム自体を止める
+						""";
 
-			//続き
-			switch (select) {
-			case 1 -> dispSubMenu(new RentalMenu(zaiko, guest, ai,today));
-			case 2 -> dispSubMenu(new ReturnMenu(guest, ai));
-			case 3 -> dispSubMenu(new Search(guest, zaiko));
-			case 4 -> dispSubMenu(new Register(guest, ai));
-			case 5 -> dispSubMenu(new Check(guest,today));
-			case 6 -> guest = productGuest(list);
+				System.out.println(text);
 
-			case 7 -> {
-				dispSubMenu(new EndDay(guest,today));
-				today=today.plusDays(1);
-			}
+				//入力はすべて nextLine() で1行ずつ読む（next()やnextInt()と混ぜると改行が残って壊れる）
+				//数字以外だと NumberFormatException になり、下の catch でメニューに戻る
+				int select = Integer.parseInt(sc.nextLine().trim());
 
-			case 8 -> {
+				//続き
+				switch (select) {
+				case 1 -> dispSubMenu(new RentalMenu(zaiko, guest, ai, today));
+				case 2 -> dispSubMenu(new ReturnMenu(guest, ai));
+				case 3 -> dispSubMenu(new Search(guest, zaiko));
+				case 4 -> dispSubMenu(new Register(guest, ai));
+				case 5 -> dispSubMenu(new Check(guest, today));
+				case 6 -> guest = productGuest(list);
 
-				System.out.println("関係者ですか?"
-						+ "名前と　ID番号を入力してください");
+				case 7 -> {
+					dispSubMenu(new EndDay(guest, today));
+					today = today.plusDays(1);
+				}
 
-				checkStaff(list);
+				case 8 -> {
 
-			}
+					System.out.println("関係者ですか?"
+							+ "名前と　ID番号を入力してください");
 
-			default -> found = false;
+					checkStaff(list);
+
+				}
+
+				case 9 -> found = false;
+
+				default -> {
+					System.out.println("例外が発生します");
+					throw new SystemMenuException("数値を入力してください");
+				}
+
+				}
+				
+			} catch (SystemMenuException e) {
+				System.out.println(e.getMessage());
+			} catch (NumberFormatException e) {
+				System.out.println("半角の数字を入力してください");
 			}
 		}
 		System.out.println("終了しました");
 
 	}
 
-	void checkStaff(List<Guest> list) {
+	//例外はそのまま display の catch に渡して、トップメニューに戻る
+	void checkStaff(List<Guest> list) throws SystemMenuException {
 		System.out.println("名前を入力してください");
-		String name = InputHelper.readText(sc);
+		String name = sc.nextLine().trim();
+		if (name.isEmpty()) {
+			throw new SystemMenuException("名前が空です");
+		}
 
 		System.out.println("ID番号を入力してください");
-		int id = InputHelper.readInt(sc, 0, 999999);
+		int id = Integer.parseInt(sc.nextLine().trim());//数字以外は NumberFormatException
 
 		//AiManagerが社員のリストをもう、もっているので　
 		//ポリモーフィズム？
@@ -112,21 +133,33 @@ public class TopMenu implements Menu {
 
 	@Override
 	public Guest productGuest(List<Guest> list) {
-		System.out.println("名前を入力してください");
-		String name = InputHelper.readText(sc);
 
-		Guest guest;
-		for (Guest g : list) {
-			if (g.getName().equals(name)) {
-				System.out.println("おかえりなさい" + g.getName() + "様");
-				return g;
+		while (true) {
+			try {
+
+				System.out.println("名前を入力してください");
+
+				String name = sc.nextLine().trim();
+				if (name.isEmpty() || name.length() >= 20 || name.matches("[0-9]+")) {
+					throw new SystemMenuException("名前は数字だけ・空・20文字以上にはできません");
+				}
+
+				Guest guest;
+				for (Guest g : list) {
+					if (g.getName().equals(name)) {
+						System.out.println("おかえりなさい" + g.getName() + "様");
+						return g;
+					}
+				}
+
+				//始めは通常客で生成する
+				guest = new Guest(name);
+				list.add(guest);
+				return guest;
+			} catch (SystemMenuException e) {
+				System.out.println(e.getMessage());
 			}
+
 		}
-
-		//始めは通常客で生成する
-		guest = new Guest(name);
-		list.add(guest);
-		return guest;
 	}
-
 }

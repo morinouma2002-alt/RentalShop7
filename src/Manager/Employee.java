@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import Guest.Guest;
-import Screen.InputHelper;
 
 public class Employee {
 
@@ -35,11 +34,15 @@ public class Employee {
 		boolean running = true;
 		while (running) {
 			System.out.println(textBlock);
-			switch (InputHelper.readInt(sc, 1, 2)) {
-			case 1 -> checkRegisterGuest();
-			case 2 -> running = false;
-			default -> System.out.println("1か2を選んでください");
-			
+			try {
+				switch (Integer.parseInt(sc.nextLine().trim())) {
+				case 1 -> checkRegisterGuest();
+				case 2 -> running = false;
+				default -> System.out.println("1か2を選んでください");
+
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("半角の数字を入力してください");
 			}
 		}
 	}

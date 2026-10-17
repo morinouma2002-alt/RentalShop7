@@ -35,7 +35,11 @@ public class Search implements Menu {
 		System.out.println("作品について、詳しく調べます\n"
 				+ "タイトル名を入力してください");
 
-		String title = InputHelper.readText(sc);
+		String title = sc.nextLine().trim();
+		if (title.isEmpty()) {
+			System.out.println("タイトル名が空です");
+			return;
+		}
 
 		if (map.containsKey(title)) {
 			System.out.println("見つかりました");

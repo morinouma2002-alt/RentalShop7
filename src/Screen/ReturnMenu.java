@@ -34,9 +34,17 @@ public class ReturnMenu implements Menu {
 		}
 
 		System.out.println("返却するのを番号で選んでください");
-		int n = InputHelper.readInt(sc, 1, dvdSave.size()) - 1;//範囲外は入力し直し
-
-		DVD d = dvdSave.remove(n);
+		DVD d;
+		try {
+			int n = Integer.parseInt(sc.nextLine().trim()) - 1;
+			d = dvdSave.remove(n);//範囲外は IndexOutOfBoundsException（このとき何も削除されない）
+		} catch (NumberFormatException e) {
+			System.out.println("半角の数字を入力してください");
+			return;
+		} catch (IndexOutOfBoundsException e) {
+			System.out.println("1から" + dvdSave.size() + "の番号を入力してください");
+			return;
+		}
 		d.returnRented();
 
 		// 延滞客が、全部返し終わったときだけ通常客に戻す

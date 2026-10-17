@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import Exception.RentalException;
+
 public class DVD {
 
 	static Scanner sc = new Scanner(System.in);
@@ -93,11 +95,10 @@ public class DVD {
 		overDay=false;
 	}
 
-	public void rented(LocalDate today) {
+	public void rented(LocalDate today) throws RentalException{
 
 		if (rented == false) {
-			System.out.println("その作品は、借りられているので無理です");
-			return;
+			throw new RentalException("その作品は、借りられているので無理です");
 		}
 		rented = false;//借りられた
 		this.rentedDay=today.plusDays(7);

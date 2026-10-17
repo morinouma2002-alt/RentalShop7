@@ -28,7 +28,7 @@ public class Check implements Menu{
 
 			System.out.println("現在借りているのは");
 			for (DVD d : dvdSave) {
-				System.out.println(d.getName() + "\s" + d.getValue());
+				System.out.println(d.getName() + "\s" + d.getType().getPrice() + "円");
 				
 				System.out.println("返却日;"+d.getDate());
 				if(d.getDate().isBefore(today)) {

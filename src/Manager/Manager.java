@@ -6,7 +6,6 @@ import java.util.Scanner;
 import DVD.DVD;
 import Guest.Guest;
 import Guest.GuestStatus;
-import Screen.InputHelper;
 
 public class Manager extends Employee {
 
@@ -33,19 +32,23 @@ public class Manager extends Employee {
 					""";
 
 			System.out.println(textBlock);
-			int n = InputHelper.readInt(sc, 1, 4);
+			try {
+				int n = Integer.parseInt(sc.nextLine().trim());
 
-			switch (n) {
-			case 1 -> checkZaiko();
-			case 2 -> shop.checkAssets();
+				switch (n) {
+				case 1 -> checkZaiko();
+				case 2 -> shop.checkAssets();
 
-			case 3 -> {
-				System.out.println("延滞客をチェックする");
-				printCheckEntai(list);
-			}
+				case 3 -> {
+					System.out.println("延滞客をチェックする");
+					printCheckEntai(list);
+				}
 
-			case 4 -> found = false;
-			default -> System.out.println("1から4選んでださい");
+				case 4 -> found = false;
+				default -> System.out.println("1から4選んでださい");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("半角の数字を入力してください");
 			}
 
 		}
